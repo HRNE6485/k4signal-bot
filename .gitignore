@@ -1,0 +1,6 @@
+# Ignore secrets
+.env
+
+# Ignore virtual env (optional but recommended)
+venv/
+__pycache__/
