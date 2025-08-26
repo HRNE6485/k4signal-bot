@@ -1,6 +1,4 @@
-flask==2.3.3
-requests
+flask
 python-binance
-python-telegram-bot==13.15
 python-dotenv
-binance-connector==3.4.0
+python-telegram-bot==13.15
