@@ -1,5 +1,5 @@
 import os
-from binance.um_futures import UMFutures
+from binance.client import Client
 from dotenv import load_dotenv
 from logger import logger
 
