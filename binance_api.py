@@ -8,16 +8,13 @@ load_dotenv()
 BINANCE_API_KEY = os.getenv("BINANCE_API_KEY")
 BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET")
 
-client = Client(
-    key=BINANCE_API_KEY,
-    secret=BINANCE_API_SECRET,
-    base_url="https://testnet.binancefuture.com"  # Futures Testnet
-)
-
+# اتصال به Binance Futures Testnet
+client = Client(api_key=BINANCE_API_KEY, api_secret=BINANCE_API_SECRET)
+client.FUTURES_URL = "https://testnet.binancefuture.com"
+client.API_URL = client.FUTURES_URL
 
 def get_balance():
-    return 1000  # تغییر در آینده با API واقعی
-
+    return 1000  # بعداً اتصال واقعی به futures_account_balance برمی‌گرده
 
 def calculate_position_size(entry: float, sl: float, risk_percent: float) -> float:
     balance = get_balance()
@@ -30,16 +27,15 @@ def calculate_position_size(entry: float, sl: float, risk_percent: float) -> flo
     pos_size = risk_amount / sl_distance
     return round(pos_size, 3)
 
-
 def place_order(symbol, side, qty, entry, tp, sl):
     order_side = 'BUY' if side.lower() == 'buy' else 'SELL'
     opposite_side = 'SELL' if order_side == 'BUY' else 'BUY'
 
     logger.info(f'📤 ثبت سفارش Market: {order_side} {symbol} Qty={qty}')
-    
-    # 1️⃣ ثبت سفارش خرید یا فروش اصلی
+
+    # 1️⃣ سفارش اصلی
     try:
-        order = client.new_order(
+        order = client.futures_create_order(
             symbol=symbol,
             side=order_side,
             type='MARKET',
@@ -50,13 +46,13 @@ def place_order(symbol, side, qty, entry, tp, sl):
         logger.exception(f"❌ خطا در ثبت سفارش Market: {e}")
         return
 
-    # 2️⃣ ثبت سفارش TP (Take Profit)
+    # 2️⃣ سفارش Take Profit
     try:
-        tp_order = client.new_order(
+        tp_order = client.futures_create_order(
             symbol=symbol,
             side=opposite_side,
             type='TAKE_PROFIT_MARKET',
-            stopPrice=tp,
+            stopPrice=str(tp),
             closePosition=True,
             timeInForce="GTC",
             reduceOnly=True,
@@ -66,13 +62,13 @@ def place_order(symbol, side, qty, entry, tp, sl):
     except Exception as e:
         logger.warning(f"⚠️ ثبت سفارش TP ناموفق: {e}")
 
-    # 3️⃣ ثبت سفارش SL (Stop Loss)
+    # 3️⃣ سفارش Stop Loss
     try:
-        sl_order = client.new_order(
+        sl_order = client.futures_create_order(
             symbol=symbol,
             side=opposite_side,
             type='STOP_MARKET',
-            stopPrice=sl,
+            stopPrice=str(sl),
             closePosition=True,
             timeInForce="GTC",
             reduceOnly=True,
