@@ -8,7 +8,7 @@ load_dotenv()
 BINANCE_API_KEY = os.getenv("BINANCE_API_KEY")
 BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET")
 
-client = UMFutures(
+client = Client(
     key=BINANCE_API_KEY,
     secret=BINANCE_API_SECRET,
     base_url="https://testnet.binancefuture.com"  # Futures Testnet
